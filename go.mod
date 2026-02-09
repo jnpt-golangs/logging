@@ -1,4 +1,4 @@
-module github.com/jnp/go-structured-logs
+module github.com/jnpt-golangs/logging
 
 go 1.23.2
 

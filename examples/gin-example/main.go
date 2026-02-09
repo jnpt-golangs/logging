@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jnp/go-structured-logs/pkg/httpclient"
-	"github.com/jnp/go-structured-logs/pkg/logger"
-	"github.com/jnp/go-structured-logs/pkg/middleware"
+	"github.com/jnpt-golangs/logging/pkg/httpclient"
+	"github.com/jnpt-golangs/logging/pkg/logger"
+	"github.com/jnpt-golangs/logging/pkg/middleware"
 )
 
 func main() {

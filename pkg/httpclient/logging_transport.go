@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/jnp/go-structured-logs/pkg/logger"
+	"github.com/jnpt-golangs/logging/pkg/logger"
 )
 
 // LoggingTransport wraps http.RoundTripper with logging

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jnp/go-structured-logs/pkg/logger"
+	"github.com/jnpt-golangs/logging/pkg/logger"
 )
 
 // responseWriter wraps gin.ResponseWriter to capture response body
@@ -30,7 +30,7 @@ func LoggingMiddleware(log *logger.AppLogger, config ...*logger.Config) gin.Hand
 	if len(config) > 0 && config[0] != nil {
 		cfg = config[0]
 	}
-	
+
 	return func(c *gin.Context) {
 		// Skip excluded patterns
 		if shouldSkip(c.Request.URL.Path, cfg) {
@@ -54,7 +54,7 @@ func LoggingMiddleware(log *logger.AppLogger, config ...*logger.Config) gin.Hand
 		if cfg.RequestLogging.LogBody && c.Request.Body != nil {
 			bodyBytes, _ := io.ReadAll(c.Request.Body)
 			c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
-			
+
 			if len(bodyBytes) > 0 {
 				var jsonBody interface{}
 				if err := json.Unmarshal(bodyBytes, &jsonBody); err == nil {
