@@ -15,7 +15,7 @@ A Go library for structured JSON logging with Gin framework support. Similar to 
 ## Installation
 
 ```bash
-go get github.com/jnp/go-structured-logs
+go get github.com/jnpt-golangs/logging
 ```
 
 ## Quick Start
@@ -78,7 +78,7 @@ package main
 
 import (
     "context"
-    "github.com/jnp/go-structured-logs/pkg/logger"
+    "github.com/jnpt-golangs/logging/pkg/logger"
 )
 
 func main() {
@@ -106,8 +106,8 @@ package main
 
 import (
     "github.com/gin-gonic/gin"
-    "github.com/jnp/go-structured-logs/pkg/logger"
-    "github.com/jnp/go-structured-logs/pkg/middleware"
+    "github.com/jnpt-golangs/logging/pkg/logger"
+    "github.com/jnpt-golangs/logging/pkg/middleware"
 )
 
 func main() {
@@ -138,8 +138,8 @@ package main
 
 import (
     "github.com/gin-gonic/gin"
-    "github.com/jnp/go-structured-logs/pkg/logger"
-    "github.com/jnp/go-structured-logs/pkg/middleware"
+    "github.com/jnpt-golangs/logging/pkg/logger"
+    "github.com/jnpt-golangs/logging/pkg/middleware"
 )
 
 func main() {
@@ -175,8 +175,8 @@ import (
     "context"
     "net/http"
     
-    "github.com/jnp/go-structured-logs/pkg/httpclient"
-    "github.com/jnp/go-structured-logs/pkg/logger"
+    "github.com/jnpt-golangs/logging/pkg/httpclient"
+    "github.com/jnpt-golangs/logging/pkg/logger"
 )
 
 func main() {
