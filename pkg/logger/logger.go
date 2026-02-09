@@ -72,51 +72,51 @@ func (l *AppLogger) SetOutput(w io.Writer) {
 }
 
 // Debug logs a debug message
-func (l *AppLogger) Debug(ctx context.Context, message string, extra ...map[string]interface{}) {
+func (l *AppLogger) Debug(ctx context.Context, message string, extra ...any) {
 	if !l.isApplicationLoggingEnabled() || !l.isLevelEnabled("DEBUG") {
 		return
 	}
-	l.logApplication(ctx, "DEBUG", message, nil, mergeExtra(extra))
+	l.logApplication(ctx, "DEBUG", message, nil, mergeExtras(extra))
 }
 
 // Info logs an info message
-func (l *AppLogger) Info(ctx context.Context, message string, extra ...map[string]interface{}) {
+func (l *AppLogger) Info(ctx context.Context, message string, extra ...any) {
 	if !l.isApplicationLoggingEnabled() || !l.isLevelEnabled("INFO") {
 		return
 	}
-	l.logApplication(ctx, "INFO", message, nil, mergeExtra(extra))
+	l.logApplication(ctx, "INFO", message, nil, mergeExtras(extra))
 }
 
 // Warn logs a warning message
-func (l *AppLogger) Warn(ctx context.Context, message string, extra ...map[string]interface{}) {
+func (l *AppLogger) Warn(ctx context.Context, message string, extra ...any) {
 	if !l.isApplicationLoggingEnabled() || !l.isLevelEnabled("WARN") {
 		return
 	}
-	l.logApplication(ctx, "WARN", message, nil, mergeExtra(extra))
+	l.logApplication(ctx, "WARN", message, nil, mergeExtras(extra))
 }
 
 // WarnError logs a warning message with error
-func (l *AppLogger) WarnError(ctx context.Context, message string, err error, extra ...map[string]interface{}) {
+func (l *AppLogger) WarnError(ctx context.Context, message string, err error, extra ...any) {
 	if !l.isApplicationLoggingEnabled() || !l.isLevelEnabled("WARN") {
 		return
 	}
-	l.logApplication(ctx, "WARN", message, err, mergeExtra(extra))
+	l.logApplication(ctx, "WARN", message, err, mergeExtras(extra))
 }
 
 // Error logs an error message
-func (l *AppLogger) Error(ctx context.Context, message string, extra ...map[string]interface{}) {
+func (l *AppLogger) Error(ctx context.Context, message string, extra ...any) {
 	if !l.isApplicationLoggingEnabled() || !l.isLevelEnabled("ERROR") {
 		return
 	}
-	l.logApplication(ctx, "ERROR", message, nil, mergeExtra(extra))
+	l.logApplication(ctx, "ERROR", message, nil, mergeExtras(extra))
 }
 
 // ErrorWithErr logs an error message with error
-func (l *AppLogger) ErrorWithErr(ctx context.Context, message string, err error, extra ...map[string]interface{}) {
+func (l *AppLogger) ErrorWithErr(ctx context.Context, message string, err error, extra ...any) {
 	if !l.isApplicationLoggingEnabled() || !l.isLevelEnabled("ERROR") {
 		return
 	}
-	l.logApplication(ctx, "ERROR", message, err, mergeExtra(extra))
+	l.logApplication(ctx, "ERROR", message, err, mergeExtras(extra))
 }
 
 // LogIncomingRequest logs an incoming HTTP request
@@ -342,13 +342,35 @@ func (l *AppLogger) isLevelEnabled(level string) bool {
 	return levelValue >= minLevelValue
 }
 
-func mergeExtra(extras []map[string]interface{}) map[string]interface{} {
+// mergeExtras converts any type (map or struct) to map[string]interface{} and merges them
+func mergeExtras(extras []any) map[string]interface{} {
 	if len(extras) == 0 {
 		return nil
 	}
 	result := make(map[string]interface{})
 	for _, extra := range extras {
-		for k, v := range extra {
+		if extra == nil {
+			continue
+		}
+		// Handle map[string]interface{} directly
+		if m, ok := extra.(map[string]interface{}); ok {
+			for k, v := range m {
+				result[k] = v
+			}
+			continue
+		}
+		// Handle struct or other types via JSON marshaling
+		data, err := json.Marshal(extra)
+		if err != nil {
+			continue
+		}
+		var m map[string]interface{}
+		if err := json.Unmarshal(data, &m); err != nil {
+			// If can't unmarshal to map, treat as single value
+			result["data"] = extra
+			continue
+		}
+		for k, v := range m {
 			result[k] = v
 		}
 	}
