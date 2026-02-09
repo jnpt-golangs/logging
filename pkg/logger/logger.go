@@ -14,11 +14,11 @@ import (
 
 // AppLogger is the main structured logger
 type AppLogger struct {
-	name        string
-	config      *Config
-	masking     *MaskingUtil
-	output      io.Writer
-	mu          sync.Mutex
+	name    string
+	config  *Config
+	masking *MaskingUtil
+	output  io.Writer
+	mu      sync.Mutex
 }
 
 var (
@@ -73,7 +73,7 @@ func (l *AppLogger) SetOutput(w io.Writer) {
 
 // Debug logs a debug message
 func (l *AppLogger) Debug(ctx context.Context, message string, extra ...map[string]interface{}) {
-	if !l.isApplicationLoggingEnabled() {
+	if !l.isApplicationLoggingEnabled() || !l.isLevelEnabled("DEBUG") {
 		return
 	}
 	l.logApplication(ctx, "DEBUG", message, nil, mergeExtra(extra))
@@ -81,7 +81,7 @@ func (l *AppLogger) Debug(ctx context.Context, message string, extra ...map[stri
 
 // Info logs an info message
 func (l *AppLogger) Info(ctx context.Context, message string, extra ...map[string]interface{}) {
-	if !l.isApplicationLoggingEnabled() {
+	if !l.isApplicationLoggingEnabled() || !l.isLevelEnabled("INFO") {
 		return
 	}
 	l.logApplication(ctx, "INFO", message, nil, mergeExtra(extra))
@@ -89,7 +89,7 @@ func (l *AppLogger) Info(ctx context.Context, message string, extra ...map[strin
 
 // Warn logs a warning message
 func (l *AppLogger) Warn(ctx context.Context, message string, extra ...map[string]interface{}) {
-	if !l.isApplicationLoggingEnabled() {
+	if !l.isApplicationLoggingEnabled() || !l.isLevelEnabled("WARN") {
 		return
 	}
 	l.logApplication(ctx, "WARN", message, nil, mergeExtra(extra))
@@ -97,7 +97,7 @@ func (l *AppLogger) Warn(ctx context.Context, message string, extra ...map[strin
 
 // WarnError logs a warning message with error
 func (l *AppLogger) WarnError(ctx context.Context, message string, err error, extra ...map[string]interface{}) {
-	if !l.isApplicationLoggingEnabled() {
+	if !l.isApplicationLoggingEnabled() || !l.isLevelEnabled("WARN") {
 		return
 	}
 	l.logApplication(ctx, "WARN", message, err, mergeExtra(extra))
@@ -105,7 +105,7 @@ func (l *AppLogger) WarnError(ctx context.Context, message string, err error, ex
 
 // Error logs an error message
 func (l *AppLogger) Error(ctx context.Context, message string, extra ...map[string]interface{}) {
-	if !l.isApplicationLoggingEnabled() {
+	if !l.isApplicationLoggingEnabled() || !l.isLevelEnabled("ERROR") {
 		return
 	}
 	l.logApplication(ctx, "ERROR", message, nil, mergeExtra(extra))
@@ -113,7 +113,7 @@ func (l *AppLogger) Error(ctx context.Context, message string, extra ...map[stri
 
 // ErrorWithErr logs an error message with error
 func (l *AppLogger) ErrorWithErr(ctx context.Context, message string, err error, extra ...map[string]interface{}) {
-	if !l.isApplicationLoggingEnabled() {
+	if !l.isApplicationLoggingEnabled() || !l.isLevelEnabled("ERROR") {
 		return
 	}
 	l.logApplication(ctx, "ERROR", message, err, mergeExtra(extra))
@@ -327,6 +327,19 @@ func (l *AppLogger) isApplicationLoggingEnabled() bool {
 
 func (l *AppLogger) isRequestLoggingEnabled() bool {
 	return l.config.Enabled && l.config.RequestLogging.Enabled
+}
+
+// isLevelEnabled checks if the given level should be logged based on MinLevel
+func (l *AppLogger) isLevelEnabled(level string) bool {
+	minLevelValue, ok := LevelValue[l.config.MinLevel]
+	if !ok {
+		minLevelValue = LevelValue["DEBUG"] // default to DEBUG if invalid
+	}
+	levelValue, ok := LevelValue[level]
+	if !ok {
+		return true // log unknown levels
+	}
+	return levelValue >= minLevelValue
 }
 
 func mergeExtra(extras []map[string]interface{}) map[string]interface{} {

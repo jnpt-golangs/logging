@@ -64,6 +64,7 @@ type ResponseInfo struct {
 type Config struct {
 	ApplicationName    string
 	Enabled            bool
+	MinLevel           string // Minimum log level: TRACE, DEBUG, INFO, WARN, ERROR
 	RequestLogging     RequestLoggingConfig
 	ApplicationLogging ApplicationLoggingConfig
 	MaskedHeaders      []string
@@ -94,6 +95,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		ApplicationName: "application",
 		Enabled:         true,
+		MinLevel:        "DEBUG",
 		RequestLogging: RequestLoggingConfig{
 			Enabled:         true,
 			LogHeaders:      true,
