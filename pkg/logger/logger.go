@@ -119,40 +119,23 @@ func (l *AppLogger) ErrorWithErr(ctx context.Context, message string, err error,
 	l.logApplication(ctx, "ERROR", message, err, mergeExtras(extra))
 }
 
-// LogIncomingRequest logs an incoming HTTP request
-func (l *AppLogger) LogIncomingRequest(ctx context.Context, method, uri string, request *RequestInfo, remoteAddr, userAgent string) {
-	if !l.isRequestLoggingEnabled() {
-		return
-	}
-	l.logRequest(ctx, "INFO", "Incoming request", method, uri, nil, nil, remoteAddr, userAgent, request, nil, nil)
-}
-
-// LogIncomingResponse logs an incoming HTTP response
-func (l *AppLogger) LogIncomingResponse(ctx context.Context, method, uri string, statusCode int, durationMs int64, response *ResponseInfo) {
+// LogIncomingHTTP logs incoming request and response as a single entry
+func (l *AppLogger) LogIncomingHTTP(ctx context.Context, method, uri string, statusCode int, durationMs int64, request *RequestInfo, response *ResponseInfo, remoteAddr, userAgent string) {
 	if !l.isRequestLoggingEnabled() {
 		return
 	}
 	level := l.getStatusLevel(statusCode)
-	l.logRequest(ctx, level, "Incoming response", method, uri, &statusCode, &durationMs, "", "", nil, response, nil)
+	l.logRequest(ctx, level, "Incoming request", method, uri, &statusCode, &durationMs, remoteAddr, userAgent, request, response, nil)
 }
 
-// LogOutgoingRequest logs an outgoing HTTP request
-func (l *AppLogger) LogOutgoingRequest(ctx context.Context, method, uri string, request *RequestInfo) {
-	if !l.isRequestLoggingEnabled() {
-		return
-	}
-	extra := map[string]interface{}{"direction": "outgoing"}
-	l.logRequest(ctx, "INFO", "Outgoing request", method, uri, nil, nil, "", "", request, nil, extra)
-}
-
-// LogOutgoingResponse logs an outgoing HTTP response
-func (l *AppLogger) LogOutgoingResponse(ctx context.Context, method, uri string, statusCode int, durationMs int64, response *ResponseInfo) {
+// LogOutgoingHTTP logs outgoing request and response as a single entry
+func (l *AppLogger) LogOutgoingHTTP(ctx context.Context, method, uri string, statusCode int, durationMs int64, request *RequestInfo, response *ResponseInfo) {
 	if !l.isRequestLoggingEnabled() {
 		return
 	}
 	level := l.getStatusLevel(statusCode)
 	extra := map[string]interface{}{"direction": "outgoing"}
-	l.logRequest(ctx, level, "Outgoing response", method, uri, &statusCode, &durationMs, "", "", nil, response, extra)
+	l.logRequest(ctx, level, "Outgoing request", method, uri, &statusCode, &durationMs, "", "", request, response, extra)
 }
 
 func (l *AppLogger) logApplication(ctx context.Context, level, message string, err error, extra map[string]interface{}) {

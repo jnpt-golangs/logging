@@ -62,9 +62,6 @@ func (t *LoggingTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 		reqInfo.ContentLength = req.ContentLength
 	}
 
-	// Log outgoing request
-	t.Logger.LogOutgoingRequest(ctx, req.Method, req.URL.String(), reqInfo)
-
 	// Execute request
 	startTime := time.Now()
 	resp, err := t.transport().RoundTrip(req)
@@ -104,8 +101,8 @@ func (t *LoggingTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 		ContentLength: resp.ContentLength,
 	}
 
-	// Log outgoing response
-	t.Logger.LogOutgoingResponse(ctx, req.Method, req.URL.String(), resp.StatusCode, duration, resInfo)
+	// Log request + response as single entry
+	t.Logger.LogOutgoingHTTP(ctx, req.Method, req.URL.String(), resp.StatusCode, duration, reqInfo, resInfo)
 
 	return resp, nil
 }

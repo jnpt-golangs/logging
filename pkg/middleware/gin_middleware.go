@@ -75,10 +75,6 @@ func LoggingMiddleware(log *logger.AppLogger, config ...*logger.Config) gin.Hand
 			ContentLength: c.Request.ContentLength,
 		}
 
-		// Log incoming request
-		log.LogIncomingRequest(ctx, c.Request.Method, c.Request.URL.Path, reqInfo,
-			c.ClientIP(), c.GetHeader("User-Agent"))
-
 		// Wrap response writer to capture response body
 		rw := &responseWriter{
 			ResponseWriter: c.Writer,
@@ -113,9 +109,9 @@ func LoggingMiddleware(log *logger.AppLogger, config ...*logger.Config) gin.Hand
 			ContentLength: int64(rw.body.Len()),
 		}
 
-		// Log incoming response
-		log.LogIncomingResponse(ctx, c.Request.Method, c.Request.URL.Path,
-			c.Writer.Status(), duration, resInfo)
+		// Log request + response as single entry
+		log.LogIncomingHTTP(ctx, c.Request.Method, c.Request.URL.Path,
+			c.Writer.Status(), duration, reqInfo, resInfo, c.ClientIP(), c.GetHeader("User-Agent"))
 	}
 }
 
